@@ -28,5 +28,4 @@ dist-ssr
 .env.*.local
 
 # Claude 임시 파일
-  tmpclaude-*
-  *.json
+tmpclaude-*
