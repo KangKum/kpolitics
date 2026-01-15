@@ -124,49 +124,29 @@ export default function KoreaMap() {
   const handleRegionClick = useCallback(
     (name: string) => {
       if (isMobile) {
-        // 모바일: 확대되어 있으면 100%로 리셋 후 모달 표시
+        // 모바일: 확대 상태 확인
         const currentScale = window.visualViewport?.scale || 1;
 
-        if (currentScale > 1.1) {
-          // 확대되어 있는 경우: 강제 리셋
+        if (currentScale > 1.05) {
+          // 확대되어 있는 경우: 100%로 리셋 후 모달 표시
           const viewportMeta = document.querySelector('meta[name="viewport"]');
           if (viewportMeta) {
             const originalContent = viewportMeta.getAttribute("content");
-            const head = document.head;
 
-            // 1. viewport meta 제거
-            head.removeChild(viewportMeta);
+            // viewport 리셋
+            viewportMeta.setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no");
 
-            // 2. 새로운 viewport meta 생성 (강제 리셋)
-            const newViewportMeta = document.createElement("meta");
-            newViewportMeta.name = "viewport";
-            newViewportMeta.content = "width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no";
-            head.appendChild(newViewportMeta);
-
-            // 3. 스크롤 최상단으로 이동 (여러 방법 동시 사용)
+            // 스크롤 최상단으로 이동
             window.scrollTo(0, 0);
-            document.documentElement.scrollTop = 0;
-            document.body.scrollTop = 0;
 
-            // 4. 강제 리플로우 트리거
-            const display = document.body.style.display;
-            document.body.style.display = "none";
-            void document.body.offsetHeight; // 리플로우 강제 실행
-            document.body.style.display = display;
-
-            // 5. 약간의 딜레이 후 원래 설정으로 복구하고 모달 표시
+            // 약간의 딜레이 후 원래 설정 복구 및 모달 표시
             setTimeout(() => {
-              head.removeChild(newViewportMeta);
-              const restoredViewportMeta = document.createElement("meta");
-              restoredViewportMeta.name = "viewport";
-              restoredViewportMeta.content = originalContent || "width=device-width, initial-scale=1.0";
-              head.appendChild(restoredViewportMeta);
-
-              // 모달 표시
+              if (viewportMeta.parentNode) {
+                viewportMeta.setAttribute("content", originalContent || "width=device-width, initial-scale=1.0");
+              }
               setSelectedMobileRegion(name);
-            }, 200);
+            }, 100);
           } else {
-            // viewport meta가 없는 경우 바로 모달 표시
             setSelectedMobileRegion(name);
           }
         } else {
@@ -234,8 +214,15 @@ export default function KoreaMap() {
 
       {/* 모바일용 지역 선택 모달 */}
       {selectedMobileRegion && (
-        <div className="fixed inset-0 z-50 flex items-end justify-end pb-52 pr-12" onClick={() => setSelectedMobileRegion(null)}>
-          <div className="bg-white rounded-lg p-3 shadow-lg" style={{ width: "160px" }} onClick={(e) => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          onClick={() => setSelectedMobileRegion(null)}
+        >
+          <div
+            className="bg-white rounded-lg p-3 shadow-lg"
+            style={{ width: "160px" }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <h2 className="text-base font-bold mb-2 text-center text-gray-800">{selectedMobileRegion}</h2>
             <div className="flex gap-2">
               <button
