@@ -221,7 +221,7 @@ export default function KoreaMap() {
             className="bg-white rounded-lg p-3 shadow-lg"
             style={{
               width: "300px",
-              transform: `scale(${1 / modalViewport.scale})`,
+              transform: `scale(${modalViewport.scale})`,
               transformOrigin: "center center",
             }}
             onClick={(e) => e.stopPropagation()}
