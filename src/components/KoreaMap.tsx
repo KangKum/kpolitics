@@ -225,7 +225,7 @@ export default function KoreaMap() {
             className="bg-white shadow-lg"
             style={{
               width: `${modalViewport.width * 0.8}px`,
-              padding: `${12 / modalViewport.scale}px`,
+              padding: `${16 / modalViewport.scale}px`,
               borderRadius: `${8 / modalViewport.scale}px`,
             }}
             onClick={(e) => e.stopPropagation()}
@@ -234,7 +234,7 @@ export default function KoreaMap() {
               className="font-bold text-center text-gray-800"
               style={{
                 fontSize: `${16 / modalViewport.scale}px`,
-                marginBottom: `${8 / modalViewport.scale}px`,
+                marginBottom: `${12 / modalViewport.scale}px`,
               }}
             >
               {selectedMobileRegion}
@@ -252,8 +252,8 @@ export default function KoreaMap() {
                 className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-medium transition-colors whitespace-nowrap"
                 style={{
                   fontSize: `${12 / modalViewport.scale}px`,
-                  paddingTop: `${6 / modalViewport.scale}px`,
-                  paddingBottom: `${6 / modalViewport.scale}px`,
+                  paddingTop: `${10 / modalViewport.scale}px`,
+                  paddingBottom: `${10 / modalViewport.scale}px`,
                   paddingLeft: `${8 / modalViewport.scale}px`,
                   paddingRight: `${8 / modalViewport.scale}px`,
                   borderRadius: `${4 / modalViewport.scale}px`,
@@ -266,8 +266,8 @@ export default function KoreaMap() {
                 className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium transition-colors whitespace-nowrap"
                 style={{
                   fontSize: `${12 / modalViewport.scale}px`,
-                  paddingTop: `${6 / modalViewport.scale}px`,
-                  paddingBottom: `${6 / modalViewport.scale}px`,
+                  paddingTop: `${10 / modalViewport.scale}px`,
+                  paddingBottom: `${10 / modalViewport.scale}px`,
                   paddingLeft: `${8 / modalViewport.scale}px`,
                   paddingRight: `${8 / modalViewport.scale}px`,
                   borderRadius: `${4 / modalViewport.scale}px`,
