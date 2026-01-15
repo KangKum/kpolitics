@@ -38,8 +38,6 @@ export default function KoreaMap() {
   const [selectedName, setSelectedName] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [selectedMobileRegion, setSelectedMobileRegion] = useState<string | null>(null);
-  const [viewportScale, setViewportScale] = useState(1);
-  const [viewportOffset, setViewportOffset] = useState({ x: 0, y: 0 });
   const mapContainerRef = useRef<HTMLDivElement>(null);
 
   const width = 800;
@@ -90,13 +88,11 @@ export default function KoreaMap() {
 
     let touchStartX = 0;
     let touchStartY = 0;
-    let isTouchMove = false;
 
     const handleTouchStart = (e: TouchEvent) => {
       if (e.touches.length === 1) {
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
-        isTouchMove = false;
       }
     };
 
@@ -109,7 +105,6 @@ export default function KoreaMap() {
 
         // 5px 이상 움직이면 드래그로 간주
         if (deltaX > 5 || deltaY > 5) {
-          isTouchMove = true;
           e.preventDefault(); // 드래그일 때만 스크롤 방지
         }
       }
@@ -125,34 +120,6 @@ export default function KoreaMap() {
     };
   }, [isMobile]);
 
-  // 모바일에서 viewport 확대 비율 및 위치 감지
-  useEffect(() => {
-    if (!isMobile || !window.visualViewport) return;
-
-    const updateViewport = () => {
-      const vp = window.visualViewport;
-      if (vp) {
-        setViewportScale(vp.scale);
-        setViewportOffset({
-          x: vp.offsetLeft,
-          y: vp.offsetTop,
-        });
-      }
-    };
-
-    // 초기 설정
-    updateViewport();
-
-    // viewport 변경 감지
-    window.visualViewport.addEventListener("resize", updateViewport);
-    window.visualViewport.addEventListener("scroll", updateViewport);
-
-    return () => {
-      window.visualViewport?.removeEventListener("resize", updateViewport);
-      window.visualViewport?.removeEventListener("scroll", updateViewport);
-    };
-  }, [isMobile]);
-
   // Stable callback references
   const handleRegionClick = useCallback((name: string) => {
     if (isMobile) {
@@ -162,18 +129,9 @@ export default function KoreaMap() {
         const content = viewportMeta.getAttribute('content');
         viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
 
-        // 짧은 딜레이 후 원래 설정으로 복구
+        // 짧은 딜레이 후 원래 설정으로 복구하고 모달 표시
         setTimeout(() => {
           viewportMeta.setAttribute('content', content || 'width=device-width, initial-scale=1.0');
-
-          // viewport 정보 갱신 및 모달 표시
-          if (window.visualViewport) {
-            setViewportScale(1.0);
-            setViewportOffset({
-              x: 0,
-              y: 0,
-            });
-          }
           setSelectedMobileRegion(name);
         }, 100);
       } else {
