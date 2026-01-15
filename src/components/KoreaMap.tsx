@@ -38,6 +38,7 @@ export default function KoreaMap() {
   const [selectedName, setSelectedName] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [selectedMobileRegion, setSelectedMobileRegion] = useState<string | null>(null);
+  const [viewportScale, setViewportScale] = useState(1);
   const mapContainerRef = useRef<HTMLDivElement>(null);
 
   const width = 800;
@@ -86,6 +87,13 @@ export default function KoreaMap() {
     const mapContainer = mapContainerRef.current;
     if (!mapContainer || !isMobile) return;
 
+    const handleTouchStart = (e: TouchEvent) => {
+      // 한 손가락 터치만 막기 (두 손가락 핀치는 허용)
+      if (e.touches.length === 1) {
+        e.preventDefault();
+      }
+    };
+
     const handleTouchMove = (e: TouchEvent) => {
       // 한 손가락 터치만 막기 (두 손가락 핀치는 허용)
       if (e.touches.length === 1) {
@@ -93,8 +101,34 @@ export default function KoreaMap() {
       }
     };
 
+    mapContainer.addEventListener("touchstart", handleTouchStart, { passive: false });
     mapContainer.addEventListener("touchmove", handleTouchMove, { passive: false });
-    return () => mapContainer.removeEventListener("touchmove", handleTouchMove);
+
+    return () => {
+      mapContainer.removeEventListener("touchstart", handleTouchStart);
+      mapContainer.removeEventListener("touchmove", handleTouchMove);
+    };
+  }, [isMobile]);
+
+  // 모바일에서 viewport 확대 비율 감지
+  useEffect(() => {
+    if (!isMobile || !window.visualViewport) return;
+
+    const updateScale = () => {
+      setViewportScale(window.visualViewport?.scale || 1);
+    };
+
+    // 초기 스케일 설정
+    updateScale();
+
+    // viewport 변경 감지
+    window.visualViewport.addEventListener("resize", updateScale);
+    window.visualViewport.addEventListener("scroll", updateScale);
+
+    return () => {
+      window.visualViewport?.removeEventListener("resize", updateScale);
+      window.visualViewport?.removeEventListener("scroll", updateScale);
+    };
   }, [isMobile]);
 
   // Stable callback references
@@ -136,7 +170,15 @@ export default function KoreaMap() {
   }
 
   return (
-    <div ref={mapContainerRef} className="relative w-full">
+    <div
+      ref={mapContainerRef}
+      className="relative w-full"
+      style={{
+        touchAction: isMobile ? 'pinch-zoom' : 'auto',
+        WebkitTouchCallout: 'none',
+        WebkitUserSelect: 'none',
+      }}
+    >
       {/* 데스크톱에서만 hover 툴팁 표시 */}
       {!isMobile && hoveredName && (
         <div
@@ -155,7 +197,11 @@ export default function KoreaMap() {
           onClick={() => setSelectedMobileRegion(null)}
         >
           <div
-            className="bg-white rounded-lg p-6 max-w-sm w-full shadow-xl"
+            className="bg-white rounded-lg p-6 max-w-sm w-full shadow-xl transition-transform"
+            style={{
+              transform: `scale(${1 / viewportScale})`,
+              transformOrigin: "center center",
+            }}
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="text-2xl font-bold mb-4 text-center text-gray-800">
