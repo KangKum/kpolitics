@@ -222,29 +222,53 @@ export default function KoreaMap() {
           onClick={() => setSelectedMobileRegion(null)}
         >
           <div
-            className="bg-white rounded-lg p-3 shadow-lg"
+            className="bg-white rounded-lg shadow-lg"
             style={{
               width: `${modalViewport.width * 0.8}px`,
+              padding: `${12 / modalViewport.scale}px`,
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="text-base font-bold mb-2 text-center text-gray-800">{selectedMobileRegion}</h2>
-            <div className="flex gap-2">
+            <h2
+              className="font-bold text-center text-gray-800"
+              style={{
+                fontSize: `${16 / modalViewport.scale}px`,
+                marginBottom: `${8 / modalViewport.scale}px`,
+              }}
+            >
+              {selectedMobileRegion}
+            </h2>
+            <div
+              className="flex"
+              style={{ gap: `${8 / modalViewport.scale}px` }}
+            >
               <button
                 onClick={() => {
                   const region = selectedMobileRegion;
                   setSelectedMobileRegion(null);
                   navigate(`/test?region=${encodeURIComponent(region)}`);
                 }}
-                className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-medium py-1.5 px-2 rounded transition-colors whitespace-nowrap"
-                style={{ fontSize: '10px' }}
+                className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded transition-colors whitespace-nowrap"
+                style={{
+                  fontSize: `${12 / modalViewport.scale}px`,
+                  paddingTop: `${6 / modalViewport.scale}px`,
+                  paddingBottom: `${6 / modalViewport.scale}px`,
+                  paddingLeft: `${8 / modalViewport.scale}px`,
+                  paddingRight: `${8 / modalViewport.scale}px`,
+                }}
               >
                 이동
               </button>
               <button
                 onClick={() => setSelectedMobileRegion(null)}
-                className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-1.5 px-2 rounded transition-colors whitespace-nowrap"
-                style={{ fontSize: '10px' }}
+                className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded transition-colors whitespace-nowrap"
+                style={{
+                  fontSize: `${12 / modalViewport.scale}px`,
+                  paddingTop: `${6 / modalViewport.scale}px`,
+                  paddingBottom: `${6 / modalViewport.scale}px`,
+                  paddingLeft: `${8 / modalViewport.scale}px`,
+                  paddingRight: `${8 / modalViewport.scale}px`,
+                }}
               >
                 닫기
               </button>
