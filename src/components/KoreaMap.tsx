@@ -121,53 +121,76 @@ export default function KoreaMap() {
   }, [isMobile]);
 
   // Stable callback references
-  const handleRegionClick = useCallback((name: string) => {
-    if (isMobile) {
-      // 모바일: 화면 배율을 100%로 리셋 (사파리 호환)
-      const viewportMeta = document.querySelector('meta[name="viewport"]');
-      if (viewportMeta) {
-        const originalContent = viewportMeta.getAttribute('content');
-        const head = document.head;
+  const handleRegionClick = useCallback(
+    (name: string) => {
+      if (isMobile) {
+        // 모바일: 확대되어 있으면 100%로 리셋 후 모달 표시
+        const currentScale = window.visualViewport?.scale || 1;
 
-        // viewport meta 제거
-        head.removeChild(viewportMeta);
+        if (currentScale > 1.1) {
+          // 확대되어 있는 경우: 강제 리셋
+          const viewportMeta = document.querySelector('meta[name="viewport"]');
+          if (viewportMeta) {
+            const originalContent = viewportMeta.getAttribute("content");
+            const head = document.head;
 
-        // 새로운 viewport meta 생성 (강제 리셋)
-        const newViewportMeta = document.createElement('meta');
-        newViewportMeta.name = 'viewport';
-        newViewportMeta.content = 'width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no';
-        head.appendChild(newViewportMeta);
+            // 1. viewport meta 제거
+            head.removeChild(viewportMeta);
 
-        // 스크롤 최상단으로 이동
-        window.scrollTo(0, 0);
+            // 2. 새로운 viewport meta 생성 (강제 리셋)
+            const newViewportMeta = document.createElement("meta");
+            newViewportMeta.name = "viewport";
+            newViewportMeta.content = "width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no";
+            head.appendChild(newViewportMeta);
 
-        // 짧은 딜레이 후 원래 설정으로 복구하고 모달 표시
-        setTimeout(() => {
-          head.removeChild(newViewportMeta);
-          const restoredViewportMeta = document.createElement('meta');
-          restoredViewportMeta.name = 'viewport';
-          restoredViewportMeta.content = originalContent || 'width=device-width, initial-scale=1.0';
-          head.appendChild(restoredViewportMeta);
+            // 3. 스크롤 최상단으로 이동 (여러 방법 동시 사용)
+            window.scrollTo(0, 0);
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
 
+            // 4. 강제 리플로우 트리거
+            const display = document.body.style.display;
+            document.body.style.display = "none";
+            void document.body.offsetHeight; // 리플로우 강제 실행
+            document.body.style.display = display;
+
+            // 5. 약간의 딜레이 후 원래 설정으로 복구하고 모달 표시
+            setTimeout(() => {
+              head.removeChild(newViewportMeta);
+              const restoredViewportMeta = document.createElement("meta");
+              restoredViewportMeta.name = "viewport";
+              restoredViewportMeta.content = originalContent || "width=device-width, initial-scale=1.0";
+              head.appendChild(restoredViewportMeta);
+
+              // 모달 표시
+              setSelectedMobileRegion(name);
+            }, 200);
+          } else {
+            // viewport meta가 없는 경우 바로 모달 표시
+            setSelectedMobileRegion(name);
+          }
+        } else {
+          // 확대되지 않은 경우: 바로 모달 표시
           setSelectedMobileRegion(name);
-        }, 150);
+        }
       } else {
-        // viewport meta가 없는 경우 바로 모달 표시
-        setSelectedMobileRegion(name);
+        // 데스크톱: 기존 로직 유지 (바로 페이지 이동)
+        setSelectedName((prev) => (prev === name ? null : name));
+        navigate(`/test?region=${encodeURIComponent(name)}`);
       }
-    } else {
-      // 데스크톱: 기존 로직 유지 (바로 페이지 이동)
-      setSelectedName((prev) => (prev === name ? null : name));
-      navigate(`/test?region=${encodeURIComponent(name)}`);
-    }
-  }, [isMobile, navigate]);
+    },
+    [isMobile, navigate]
+  );
 
-  const handleMouseEnter = useCallback((name: string) => {
-    // 모바일에서는 hover 이벤트 무시
-    if (!isMobile) {
-      setHoveredName(name);
-    }
-  }, [isMobile]);
+  const handleMouseEnter = useCallback(
+    (name: string) => {
+      // 모바일에서는 hover 이벤트 무시
+      if (!isMobile) {
+        setHoveredName(name);
+      }
+    },
+    [isMobile]
+  );
 
   const handleMouseLeave = useCallback(() => {
     // 모바일에서는 hover 이벤트 무시
@@ -193,9 +216,9 @@ export default function KoreaMap() {
       ref={mapContainerRef}
       className="relative w-full"
       style={{
-        touchAction: isMobile ? 'pinch-zoom' : 'auto',
-        WebkitTouchCallout: 'none',
-        WebkitUserSelect: 'none',
+        touchAction: isMobile ? "pinch-zoom" : "auto",
+        WebkitTouchCallout: "none",
+        WebkitUserSelect: "none",
       }}
     >
       {/* 데스크톱에서만 hover 툴팁 표시 */}
@@ -211,34 +234,23 @@ export default function KoreaMap() {
 
       {/* 모바일용 지역 선택 모달 */}
       {selectedMobileRegion && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4"
-          onClick={() => setSelectedMobileRegion(null)}
-        >
-          <div
-            className="bg-white rounded-lg p-6 max-w-sm w-full shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="text-2xl font-bold mb-4 text-center text-gray-800">
-              {selectedMobileRegion}
-            </h2>
-            <p className="text-sm text-gray-600 mb-6 text-center">
-              해당 지역의 정치인 정보를 확인하시겠습니까?
-            </p>
-            <div className="flex gap-3">
+        <div className="fixed inset-0 z-50 flex items-end justify-end pb-52 pr-12" onClick={() => setSelectedMobileRegion(null)}>
+          <div className="bg-white rounded-lg p-3 shadow-lg" style={{ width: "160px" }} onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-base font-bold mb-2 text-center text-gray-800">{selectedMobileRegion}</h2>
+            <div className="flex gap-2">
               <button
                 onClick={() => {
                   const region = selectedMobileRegion;
                   setSelectedMobileRegion(null);
                   navigate(`/test?region=${encodeURIComponent(region)}`);
                 }}
-                className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
+                className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-medium py-1.5 px-2 rounded text-xs transition-colors"
               >
-                이동하기
+                이동
               </button>
               <button
                 onClick={() => setSelectedMobileRegion(null)}
-                className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 px-4 rounded-lg transition-colors"
+                className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-1.5 px-2 rounded text-xs transition-colors"
               >
                 닫기
               </button>
@@ -249,12 +261,8 @@ export default function KoreaMap() {
 
       <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto">
         {processedFeatures.map((feature) => {
-          const isSelectedRegion = isMobile
-            ? selectedMobileRegion === feature.name
-            : selectedName === feature.name;
-          const hasSelectedRegion = isMobile
-            ? selectedMobileRegion !== null
-            : selectedName !== null;
+          const isSelectedRegion = isMobile ? selectedMobileRegion === feature.name : selectedName === feature.name;
+          const hasSelectedRegion = isMobile ? selectedMobileRegion !== null : selectedName !== null;
 
           return (
             <MapRegion
