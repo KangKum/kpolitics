@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import { geoMercator, geoPath } from "d3-geo";
 import { useNavigate } from "react-router-dom";
 import MapRegion from "./MapRegion";
@@ -36,6 +36,8 @@ export default function KoreaMap() {
   const { geoData: geo, isLoading, error } = useMapData();
   const [hoveredName, setHoveredName] = useState<string | null>(null);
   const [selectedName, setSelectedName] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [selectedMobileRegion, setSelectedMobileRegion] = useState<string | null>(null);
 
   const width = 800;
   const height = 900;
@@ -68,19 +70,41 @@ export default function KoreaMap() {
     });
   }, [geo, path]);
 
+  // 화면 크기 변경 감지 (모바일/데스크톱 구분)
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   // Stable callback references
   const handleRegionClick = useCallback((name: string) => {
-    setSelectedName((prev) => (prev === name ? null : name));
-    navigate(`/test?region=${encodeURIComponent(name)}`);
-  }, [navigate]);
+    if (isMobile) {
+      // 모바일: 모달만 표시, 페이지 이동 안 함
+      setSelectedMobileRegion(name);
+    } else {
+      // 데스크톱: 기존 로직 유지 (바로 페이지 이동)
+      setSelectedName((prev) => (prev === name ? null : name));
+      navigate(`/test?region=${encodeURIComponent(name)}`);
+    }
+  }, [isMobile, navigate]);
 
   const handleMouseEnter = useCallback((name: string) => {
-    setHoveredName(name);
-  }, []);
+    // 모바일에서는 hover 이벤트 무시
+    if (!isMobile) {
+      setHoveredName(name);
+    }
+  }, [isMobile]);
 
   const handleMouseLeave = useCallback(() => {
-    setHoveredName(null);
-  }, []);
+    // 모바일에서는 hover 이벤트 무시
+    if (!isMobile) {
+      setHoveredName(null);
+    }
+  }, [isMobile]);
 
   if (isLoading) {
     return <div>지도 로딩중...</div>;
@@ -96,13 +120,51 @@ export default function KoreaMap() {
 
   return (
     <div className="relative w-full">
-      {hoveredName && (
+      {/* 데스크톱에서만 hover 툴팁 표시 */}
+      {!isMobile && hoveredName && (
         <div
           className="pointer-events-none absolute z-10
                      left-1/2 top-2 -translate-x-1/2
                      bg-black text-white text-sm px-3 py-1 rounded shadow"
         >
           {hoveredName}
+        </div>
+      )}
+
+      {/* 모바일용 지역 선택 모달 */}
+      {selectedMobileRegion && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4"
+          onClick={() => setSelectedMobileRegion(null)}
+        >
+          <div
+            className="bg-white rounded-lg p-6 max-w-sm w-full shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-2xl font-bold mb-4 text-center text-gray-800">
+              {selectedMobileRegion}
+            </h2>
+            <p className="text-sm text-gray-600 mb-6 text-center">
+              해당 지역의 정치인 정보를 확인하시겠습니까?
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  navigate(`/test?region=${encodeURIComponent(selectedMobileRegion)}`);
+                  setSelectedMobileRegion(null);
+                }}
+                className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
+              >
+                이동하기
+              </button>
+              <button
+                onClick={() => setSelectedMobileRegion(null)}
+                className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 px-4 rounded-lg transition-colors"
+              >
+                닫기
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
