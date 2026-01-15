@@ -236,13 +236,13 @@ export default function KoreaMap() {
                   setSelectedMobileRegion(null);
                   navigate(`/test?region=${encodeURIComponent(region)}`);
                 }}
-                className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-medium py-1.5 px-2 rounded text-xs transition-colors"
+                className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-medium py-1.5 px-2 rounded text-xs transition-colors whitespace-nowrap"
               >
                 이동
               </button>
               <button
                 onClick={() => setSelectedMobileRegion(null)}
-                className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-1.5 px-2 rounded text-xs transition-colors"
+                className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-1.5 px-2 rounded text-xs transition-colors whitespace-nowrap"
               >
                 닫기
               </button>
