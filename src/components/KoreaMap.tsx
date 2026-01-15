@@ -38,6 +38,7 @@ export default function KoreaMap() {
   const [selectedName, setSelectedName] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [selectedMobileRegion, setSelectedMobileRegion] = useState<string | null>(null);
+  const [modalViewport, setModalViewport] = useState({ scale: 1, left: 0, top: 0, width: 0, height: 0 });
   const mapContainerRef = useRef<HTMLDivElement>(null);
 
   const width = 800;
@@ -124,35 +125,27 @@ export default function KoreaMap() {
   const handleRegionClick = useCallback(
     (name: string) => {
       if (isMobile) {
-        // 모바일: 확대 상태 확인
-        const currentScale = window.visualViewport?.scale || 1;
-
-        if (currentScale > 1.05) {
-          // 확대되어 있는 경우: 100%로 리셋 후 모달 표시
-          const viewportMeta = document.querySelector('meta[name="viewport"]');
-          if (viewportMeta) {
-            const originalContent = viewportMeta.getAttribute("content");
-
-            // viewport 리셋
-            viewportMeta.setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no");
-
-            // 스크롤 최상단으로 이동
-            window.scrollTo(0, 0);
-
-            // 약간의 딜레이 후 원래 설정 복구 및 모달 표시
-            setTimeout(() => {
-              if (viewportMeta.parentNode) {
-                viewportMeta.setAttribute("content", originalContent || "width=device-width, initial-scale=1.0");
-              }
-              setSelectedMobileRegion(name);
-            }, 100);
-          } else {
-            setSelectedMobileRegion(name);
-          }
+        // 모바일: 현재 viewport 정보를 읽어서 모달 위치/크기 결정
+        if (window.visualViewport) {
+          const vp = window.visualViewport;
+          setModalViewport({
+            scale: vp.scale,
+            left: vp.offsetLeft,
+            top: vp.offsetTop,
+            width: vp.width,
+            height: vp.height,
+          });
         } else {
-          // 확대되지 않은 경우: 바로 모달 표시
-          setSelectedMobileRegion(name);
+          // visualViewport 미지원 브라우저
+          setModalViewport({
+            scale: 1,
+            left: 0,
+            top: 0,
+            width: window.innerWidth,
+            height: window.innerHeight,
+          });
         }
+        setSelectedMobileRegion(name);
       } else {
         // 데스크톱: 기존 로직 유지 (바로 페이지 이동)
         setSelectedName((prev) => (prev === name ? null : name));
@@ -215,12 +208,22 @@ export default function KoreaMap() {
       {/* 모바일용 지역 선택 모달 */}
       {selectedMobileRegion && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center"
+          className="fixed z-50 flex items-center justify-center"
+          style={{
+            left: `${modalViewport.left}px`,
+            top: `${modalViewport.top}px`,
+            width: `${modalViewport.width}px`,
+            height: `${modalViewport.height}px`,
+          }}
           onClick={() => setSelectedMobileRegion(null)}
         >
           <div
             className="bg-white rounded-lg p-3 shadow-lg"
-            style={{ width: "160px" }}
+            style={{
+              width: "300px",
+              transform: `scale(${1 / modalViewport.scale})`,
+              transformOrigin: "center center",
+            }}
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="text-base font-bold mb-2 text-center text-gray-800">{selectedMobileRegion}</h2>
