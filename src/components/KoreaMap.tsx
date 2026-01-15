@@ -156,15 +156,30 @@ export default function KoreaMap() {
   // Stable callback references
   const handleRegionClick = useCallback((name: string) => {
     if (isMobile) {
-      // 모바일: 모달 표시 전 viewport 정보 갱신
-      if (window.visualViewport) {
-        setViewportScale(window.visualViewport.scale);
-        setViewportOffset({
-          x: window.visualViewport.offsetLeft,
-          y: window.visualViewport.offsetTop,
-        });
+      // 모바일: 화면 배율을 100%로 리셋
+      const viewportMeta = document.querySelector('meta[name="viewport"]');
+      if (viewportMeta) {
+        const content = viewportMeta.getAttribute('content');
+        viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+
+        // 짧은 딜레이 후 원래 설정으로 복구
+        setTimeout(() => {
+          viewportMeta.setAttribute('content', content || 'width=device-width, initial-scale=1.0');
+
+          // viewport 정보 갱신 및 모달 표시
+          if (window.visualViewport) {
+            setViewportScale(1.0);
+            setViewportOffset({
+              x: 0,
+              y: 0,
+            });
+          }
+          setSelectedMobileRegion(name);
+        }, 100);
+      } else {
+        // viewport meta가 없는 경우 바로 모달 표시
+        setSelectedMobileRegion(name);
       }
-      setSelectedMobileRegion(name);
     } else {
       // 데스크톱: 기존 로직 유지 (바로 페이지 이동)
       setSelectedName((prev) => (prev === name ? null : name));
@@ -222,21 +237,11 @@ export default function KoreaMap() {
       {/* 모바일용 지역 선택 모달 */}
       {selectedMobileRegion && (
         <div
-          className="fixed z-50 flex items-center justify-center bg-black bg-opacity-50 px-4"
-          style={{
-            left: `${viewportOffset.x}px`,
-            top: `${viewportOffset.y}px`,
-            width: window.visualViewport ? `${window.visualViewport.width}px` : '100vw',
-            height: window.visualViewport ? `${window.visualViewport.height}px` : '100vh',
-          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4"
           onClick={() => setSelectedMobileRegion(null)}
         >
           <div
-            className="bg-white rounded-lg p-6 max-w-sm w-full shadow-xl transition-transform"
-            style={{
-              transform: `scale(${1 / viewportScale})`,
-              transformOrigin: "center center",
-            }}
+            className="bg-white rounded-lg p-6 max-w-sm w-full shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="text-2xl font-bold mb-4 text-center text-gray-800">
@@ -248,8 +253,9 @@ export default function KoreaMap() {
             <div className="flex gap-3">
               <button
                 onClick={() => {
-                  navigate(`/test?region=${encodeURIComponent(selectedMobileRegion)}`);
+                  const region = selectedMobileRegion;
                   setSelectedMobileRegion(null);
+                  navigate(`/test?region=${encodeURIComponent(region)}`);
                 }}
                 className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
               >
@@ -267,20 +273,29 @@ export default function KoreaMap() {
       )}
 
       <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto">
-        {processedFeatures.map((feature) => (
-          <MapRegion
-            key={feature.id}
-            pathData={feature.pathData}
-            name={feature.name}
-            isSelected={selectedName === feature.name}
-            isHovered={hoveredName === feature.name}
-            hasSelection={selectedName !== null}
-            hasHover={hoveredName !== null}
-            onMouseEnter={() => handleMouseEnter(feature.name)}
-            onMouseLeave={handleMouseLeave}
-            onClick={() => handleRegionClick(feature.name)}
-          />
-        ))}
+        {processedFeatures.map((feature) => {
+          const isSelectedRegion = isMobile
+            ? selectedMobileRegion === feature.name
+            : selectedName === feature.name;
+          const hasSelectedRegion = isMobile
+            ? selectedMobileRegion !== null
+            : selectedName !== null;
+
+          return (
+            <MapRegion
+              key={feature.id}
+              pathData={feature.pathData}
+              name={feature.name}
+              isSelected={isSelectedRegion}
+              isHovered={hoveredName === feature.name}
+              hasSelection={hasSelectedRegion}
+              hasHover={hoveredName !== null}
+              onMouseEnter={() => handleMouseEnter(feature.name)}
+              onMouseLeave={handleMouseLeave}
+              onClick={() => handleRegionClick(feature.name)}
+            />
+          );
+        })}
       </svg>
     </div>
   );
