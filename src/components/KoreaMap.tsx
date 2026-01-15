@@ -39,6 +39,7 @@ export default function KoreaMap() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [selectedMobileRegion, setSelectedMobileRegion] = useState<string | null>(null);
   const [viewportScale, setViewportScale] = useState(1);
+  const [viewportOffset, setViewportOffset] = useState({ x: 0, y: 0 });
   const mapContainerRef = useRef<HTMLDivElement>(null);
 
   const width = 800;
@@ -82,26 +83,40 @@ export default function KoreaMap() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // 모바일에서 한 손가락 드래그 스크롤 방지 (핀치 줌은 허용)
+  // 모바일에서 한 손가락 드래그 스크롤 방지 (핀치 줌은 허용, 탭은 허용)
   useEffect(() => {
     const mapContainer = mapContainerRef.current;
     if (!mapContainer || !isMobile) return;
 
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let isTouchMove = false;
+
     const handleTouchStart = (e: TouchEvent) => {
-      // 한 손가락 터치만 막기 (두 손가락 핀치는 허용)
       if (e.touches.length === 1) {
-        e.preventDefault();
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        isTouchMove = false;
       }
     };
 
     const handleTouchMove = (e: TouchEvent) => {
-      // 한 손가락 터치만 막기 (두 손가락 핀치는 허용)
       if (e.touches.length === 1) {
-        e.preventDefault();
+        const touchMoveX = e.touches[0].clientX;
+        const touchMoveY = e.touches[0].clientY;
+        const deltaX = Math.abs(touchMoveX - touchStartX);
+        const deltaY = Math.abs(touchMoveY - touchStartY);
+
+        // 5px 이상 움직이면 드래그로 간주
+        if (deltaX > 5 || deltaY > 5) {
+          isTouchMove = true;
+          e.preventDefault(); // 드래그일 때만 스크롤 방지
+        }
       }
+      // 두 손가락은 항상 허용 (핀치 줌)
     };
 
-    mapContainer.addEventListener("touchstart", handleTouchStart, { passive: false });
+    mapContainer.addEventListener("touchstart", handleTouchStart, { passive: true });
     mapContainer.addEventListener("touchmove", handleTouchMove, { passive: false });
 
     return () => {
@@ -110,31 +125,45 @@ export default function KoreaMap() {
     };
   }, [isMobile]);
 
-  // 모바일에서 viewport 확대 비율 감지
+  // 모바일에서 viewport 확대 비율 및 위치 감지
   useEffect(() => {
     if (!isMobile || !window.visualViewport) return;
 
-    const updateScale = () => {
-      setViewportScale(window.visualViewport?.scale || 1);
+    const updateViewport = () => {
+      const vp = window.visualViewport;
+      if (vp) {
+        setViewportScale(vp.scale);
+        setViewportOffset({
+          x: vp.offsetLeft,
+          y: vp.offsetTop,
+        });
+      }
     };
 
-    // 초기 스케일 설정
-    updateScale();
+    // 초기 설정
+    updateViewport();
 
     // viewport 변경 감지
-    window.visualViewport.addEventListener("resize", updateScale);
-    window.visualViewport.addEventListener("scroll", updateScale);
+    window.visualViewport.addEventListener("resize", updateViewport);
+    window.visualViewport.addEventListener("scroll", updateViewport);
 
     return () => {
-      window.visualViewport?.removeEventListener("resize", updateScale);
-      window.visualViewport?.removeEventListener("scroll", updateScale);
+      window.visualViewport?.removeEventListener("resize", updateViewport);
+      window.visualViewport?.removeEventListener("scroll", updateViewport);
     };
   }, [isMobile]);
 
   // Stable callback references
   const handleRegionClick = useCallback((name: string) => {
     if (isMobile) {
-      // 모바일: 모달만 표시, 페이지 이동 안 함
+      // 모바일: 모달 표시 전 viewport 정보 갱신
+      if (window.visualViewport) {
+        setViewportScale(window.visualViewport.scale);
+        setViewportOffset({
+          x: window.visualViewport.offsetLeft,
+          y: window.visualViewport.offsetTop,
+        });
+      }
       setSelectedMobileRegion(name);
     } else {
       // 데스크톱: 기존 로직 유지 (바로 페이지 이동)
@@ -193,7 +222,13 @@ export default function KoreaMap() {
       {/* 모바일용 지역 선택 모달 */}
       {selectedMobileRegion && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4"
+          className="fixed z-50 flex items-center justify-center bg-black bg-opacity-50 px-4"
+          style={{
+            left: `${viewportOffset.x}px`,
+            top: `${viewportOffset.y}px`,
+            width: window.visualViewport ? `${window.visualViewport.width}px` : '100vw',
+            height: window.visualViewport ? `${window.visualViewport.height}px` : '100vh',
+          }}
           onClick={() => setSelectedMobileRegion(null)}
         >
           <div
