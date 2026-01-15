@@ -1,0 +1,37 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 지도 영역 스타일 */
+.map-region {
+  fill: #8fa9bf;
+  stroke: #ffffff;
+  stroke-width: 1;
+  cursor: pointer;
+  opacity: 1;
+  transition: opacity 0.15s ease;
+}
+
+.map-region-hovered {
+  opacity: 1;
+}
+
+.map-region-selected {
+  opacity: 1;
+}
+
+.map-region-dimmed-hover {
+  opacity: 0.4;
+}
+
+.map-region-dimmed-selected {
+  opacity: 0.25;
+}
