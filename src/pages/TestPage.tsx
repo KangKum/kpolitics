@@ -144,7 +144,11 @@ export default function TestPage() {
     return `${region} 지역의 국회의원, 광역단체장, 기초단체장 정보를 확인하세요. ${region} 소속 국회의원 명단, 의정활동 내역, 발의 법안, 단체장 정보를 제공합니다.`;
   };
 
-  if (loading) return <div className="p-6">로딩중...</div>;
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin"></div>
+    </div>
+  );
   if (error) return <div className="p-6 text-red-500">{error}</div>;
 
   return (

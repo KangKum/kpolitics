@@ -59,7 +59,11 @@ export default function TestPage2() {
     }
   };
 
-  if (loading) return <div className="p-6">로딩중...</div>;
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin"></div>
+    </div>
+  );
   if (error) return <div className="p-6 text-red-500">{error}</div>;
 
   const currentData = activeTab === "metropolitan" ? metropolitanData : basicData;
