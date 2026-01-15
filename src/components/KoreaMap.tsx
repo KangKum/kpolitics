@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback, useEffect } from "react";
+import { useMemo, useState, useCallback, useEffect, useRef } from "react";
 import { geoMercator, geoPath } from "d3-geo";
 import { useNavigate } from "react-router-dom";
 import MapRegion from "./MapRegion";
@@ -38,6 +38,7 @@ export default function KoreaMap() {
   const [selectedName, setSelectedName] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [selectedMobileRegion, setSelectedMobileRegion] = useState<string | null>(null);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
 
   const width = 800;
   const height = 900;
@@ -80,6 +81,22 @@ export default function KoreaMap() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // 모바일에서 한 손가락 드래그 스크롤 방지 (핀치 줌은 허용)
+  useEffect(() => {
+    const mapContainer = mapContainerRef.current;
+    if (!mapContainer || !isMobile) return;
+
+    const handleTouchMove = (e: TouchEvent) => {
+      // 한 손가락 터치만 막기 (두 손가락 핀치는 허용)
+      if (e.touches.length === 1) {
+        e.preventDefault();
+      }
+    };
+
+    mapContainer.addEventListener("touchmove", handleTouchMove, { passive: false });
+    return () => mapContainer.removeEventListener("touchmove", handleTouchMove);
+  }, [isMobile]);
+
   // Stable callback references
   const handleRegionClick = useCallback((name: string) => {
     if (isMobile) {
@@ -119,7 +136,7 @@ export default function KoreaMap() {
   }
 
   return (
-    <div className="relative w-full">
+    <div ref={mapContainerRef} className="relative w-full">
       {/* 데스크톱에서만 hover 툴팁 표시 */}
       {!isMobile && hoveredName && (
         <div
@@ -168,7 +185,7 @@ export default function KoreaMap() {
         </div>
       )}
 
-      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto touch-none">
+      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto">
         {processedFeatures.map((feature) => (
           <MapRegion
             key={feature.id}
