@@ -173,7 +173,11 @@ export default function KoreaMap() {
   }, [isMobile]);
 
   if (isLoading) {
-    return <div>지도 로딩중...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin"></div>
+      </div>
+    );
   }
 
   if (error) {
@@ -220,7 +224,7 @@ export default function KoreaMap() {
           <div
             className="bg-white rounded-lg p-3 shadow-lg"
             style={{
-              width: `${300 + (modalViewport.scale - 1) * 50}px`,
+              width: `${300 + (modalViewport.scale - 1) * 10}px`,
             }}
             onClick={(e) => e.stopPropagation()}
           >
