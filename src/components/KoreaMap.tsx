@@ -168,7 +168,7 @@ export default function KoreaMap() {
         </div>
       )}
 
-      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto">
+      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto touch-none">
         {processedFeatures.map((feature) => (
           <MapRegion
             key={feature.id}
