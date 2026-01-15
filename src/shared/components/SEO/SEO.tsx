@@ -15,7 +15,7 @@ export default function SEO({
   description,
   keywords,
   canonical,
-  ogImage = "https://www.kpolitics.co.kr/og-image.png",
+  ogImage = "https://www.kpolitics.co.kr/kp_icon-1200x630.png",
   ogType = "website",
   noindex = false,
 }: SEOProps) {

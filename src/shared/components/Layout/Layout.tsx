@@ -12,7 +12,7 @@ export default function Layout() {
     "@type": "Organization",
     "name": "한국 정치인 정보",
     "url": "https://www.kpolitics.co.kr",
-    "logo": "https://www.kpolitics.co.kr/og-image.png",
+    "logo": "https://www.kpolitics.co.kr/kp_icon-512x512.png",
     "description": "대한민국 전국 정치인 정보 제공 플랫폼"
   };
 
