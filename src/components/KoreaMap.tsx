@@ -123,17 +123,34 @@ export default function KoreaMap() {
   // Stable callback references
   const handleRegionClick = useCallback((name: string) => {
     if (isMobile) {
-      // 모바일: 화면 배율을 100%로 리셋
+      // 모바일: 화면 배율을 100%로 리셋 (사파리 호환)
       const viewportMeta = document.querySelector('meta[name="viewport"]');
       if (viewportMeta) {
-        const content = viewportMeta.getAttribute('content');
-        viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+        const originalContent = viewportMeta.getAttribute('content');
+        const head = document.head;
+
+        // viewport meta 제거
+        head.removeChild(viewportMeta);
+
+        // 새로운 viewport meta 생성 (강제 리셋)
+        const newViewportMeta = document.createElement('meta');
+        newViewportMeta.name = 'viewport';
+        newViewportMeta.content = 'width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no';
+        head.appendChild(newViewportMeta);
+
+        // 스크롤 최상단으로 이동
+        window.scrollTo(0, 0);
 
         // 짧은 딜레이 후 원래 설정으로 복구하고 모달 표시
         setTimeout(() => {
-          viewportMeta.setAttribute('content', content || 'width=device-width, initial-scale=1.0');
+          head.removeChild(newViewportMeta);
+          const restoredViewportMeta = document.createElement('meta');
+          restoredViewportMeta.name = 'viewport';
+          restoredViewportMeta.content = originalContent || 'width=device-width, initial-scale=1.0';
+          head.appendChild(restoredViewportMeta);
+
           setSelectedMobileRegion(name);
-        }, 100);
+        }, 150);
       } else {
         // viewport meta가 없는 경우 바로 모달 표시
         setSelectedMobileRegion(name);
