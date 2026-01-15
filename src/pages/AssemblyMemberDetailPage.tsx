@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { AssemblyMemberDetailResponse, Bill } from "@/types/assembly";
+import SEO from "@/shared/components/SEO/SEO";
+import JsonLd from "@/shared/components/SEO/JsonLd";
+import BreadcrumbJsonLd from "@/shared/components/SEO/BreadcrumbJsonLd";
 
 // 백엔드 API URL 환경변수
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:4001";
@@ -52,12 +55,71 @@ export default function AssemblyMemberDetailPage() {
     }
   };
 
+  const getSEOTitle = () => {
+    if (!data) return "국회의원 상세 정보";
+    return `${data.member.name} 국회의원 - ${data.member.region}`;
+  };
+
+  const getSEODescription = () => {
+    if (!data) return "국회의원의 상세 정보를 확인하세요.";
+
+    return `${data.member.name} 국회의원 (${data.member.party}, ${data.member.region})의 의정활동 정보입니다. 대표발의 ${data.statistics.representativeCount}건, 공동발의 ${data.statistics.jointCount}건, 총 ${data.statistics.totalCount}건의 법안을 발의했습니다.`;
+  };
+
+  const getSEOKeywords = () => {
+    if (!data) return "";
+
+    const regionParts = data.member.region.split(" ");
+    const province = regionParts[0] || "";
+
+    return `${data.member.name},국회의원,${data.member.party},${data.member.region},${province},의정활동,법안발의,대표발의,공동발의`;
+  };
+
+  const getPersonSchema = () => {
+    if (!data) return null;
+
+    return {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": data.member.name,
+      "jobTitle": "국회의원",
+      "affiliation": {
+        "@type": "Organization",
+        "name": data.member.party
+      },
+      "workLocation": {
+        "@type": "Place",
+        "address": {
+          "@type": "PostalAddress",
+          "addressRegion": data.member.region
+        }
+      },
+      "description": `${data.member.name} 국회의원 (${data.member.party}, ${data.member.region})의 의정활동 정보`
+    };
+  };
+
   if (loading) return <div className="p-6">로딩 중...</div>;
   if (error) return <div className="p-6 text-red-500">{error}</div>;
   if (!data) return <div className="p-6">데이터 없음</div>;
 
   return (
-    <div className="p-4 sm:p-6 max-w-7xl mx-auto">
+    <>
+      <SEO
+        title={getSEOTitle()}
+        description={getSEODescription()}
+        keywords={getSEOKeywords()}
+        canonical={`/assembly/${encodeURIComponent(name!)}`}
+        ogType="article"
+      />
+      {getPersonSchema() && <JsonLd data={getPersonSchema()!} />}
+      <BreadcrumbJsonLd
+        items={[
+          { name: "홈", url: "/" },
+          { name: "전국", url: "/test" },
+          { name: data.member.name, url: `/assembly/${encodeURIComponent(name!)}` }
+        ]}
+      />
+      <div className="p-4 sm:p-6 max-w-7xl mx-auto">
       {/* 상단 버튼 */}
       <div className="mb-6">
         <Link
@@ -282,6 +344,7 @@ export default function AssemblyMemberDetailPage() {
       <div className="mt-4 text-sm text-gray-500 text-center">
         마지막 업데이트: {new Date(data.lastUpdated).toLocaleString("ko-KR")}
       </div>
-    </div>
+      </div>
+    </>
   );
 }

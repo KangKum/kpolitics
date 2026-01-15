@@ -1,3 +1,6 @@
+import SEO from "@/shared/components/SEO/SEO";
+import JsonLd from "@/shared/components/SEO/JsonLd";
+
 // 선거 섹션 컴포넌트
 function ElectionSection({
   title,
@@ -49,8 +52,24 @@ function PositionBox({ title, subtitle, items }: { title: string; subtitle?: str
 }
 
 export default function PoliticalStructurePage() {
+  const governmentSchema = {
+    "@context": "https://schema.org",
+    "@type": "GovernmentOrganization",
+    "name": "대한민국 정부",
+    "description": "대한민국의 정치 구조와 선거 제도에 대한 정보",
+    "url": "https://www.kpolitics.co.kr/structure"
+  };
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <>
+      <SEO
+        title="대한민국 정치 구조"
+        description="대한민국의 정치 구조와 선거 제도를 한눈에 확인하세요. 대통령 선거, 국회의원 선거(총선), 지방선거의 구조와 주기, 광역단체장, 기초단체장, 지방의원 선출 방식을 설명합니다."
+        keywords="대한민국 정치구조,선거제도,대통령선거,국회의원선거,총선,지방선거,광역단체장,기초단체장,광역의원,기초의원,시의원,구의원,군의원"
+        canonical="/structure"
+      />
+      <JsonLd data={governmentSchema} />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* 페이지 헤더 */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold">대한민국 정치 구조</h1>
@@ -100,6 +119,7 @@ export default function PoliticalStructurePage() {
           <li>• 지방선거: 4년마다 (2026년 예정)</li>
         </ul>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

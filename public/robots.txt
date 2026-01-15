@@ -1,2 +1,15 @@
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /board/write
+Disallow: /board/*/edit
+
+# Sitemap 위치
+Sitemap: https://www.kpolitics.co.kr/sitemap.xml
+
+# 네이버 봇
+User-agent: Yeti
+Allow: /
+
+# 구글 봇
+User-agent: Googlebot
+Allow: /

@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import DataTable from "../components/DataTable";
 import { AssemblyMember } from "@/types";
+import SEO from "@/shared/components/SEO/SEO";
+import BreadcrumbJsonLd from "@/shared/components/SEO/BreadcrumbJsonLd";
 
 // 백엔드 API URL 환경변수
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:4001";
@@ -96,11 +98,70 @@ export default function TestPage() {
     }));
   };
 
+  // 지역별 키워드 매핑
+  const getRegionKeywords = (regionName: string | null) => {
+    if (!regionName) {
+      return "전국,국회의원,광역단체장,기초단체장,정치인,시장,도지사";
+    }
+
+    const baseKeywords = `${regionName},${regionName} 국회의원,${regionName} 정치인,${regionName} 시장,${regionName} 도지사`;
+
+    // 지역별 특화 키워드
+    const regionSpecificKeywords: Record<string, string> = {
+      "서울": "서울특별시,서울시장,강남구,강서구,송파구",
+      "부산": "부산광역시,부산시장,해운대구,부산진구",
+      "대구": "대구광역시,대구시장,수성구,달서구",
+      "인천": "인천광역시,인천시장,연수구,남동구",
+      "광주": "광주광역시,광주시장,북구,광산구",
+      "대전": "대전광역시,대전시장,서구,유성구",
+      "울산": "울산광역시,울산시장,남구,북구",
+      "세종": "세종특별자치시,세종시장",
+      "경기도": "경기도,경기도지사,수원,성남,고양,용인",
+      "강원도": "강원도,강원도지사,춘천,원주,강릉",
+      "충청북도": "충청북도,충북도지사,청주,충주",
+      "충청남도": "충청남도,충남도지사,천안,아산,공주",
+      "전라북도": "전라북도,전북도지사,전주,군산,익산",
+      "전라남도": "전라남도,전남도지사,목포,여수,순천",
+      "경상북도": "경상북도,경북도지사,포항,경주,구미",
+      "경상남도": "경상남도,경남도지사,창원,김해,양산",
+      "제주도": "제주특별자치도,제주도지사,제주시,서귀포시"
+    };
+
+    const specificKeywords = regionSpecificKeywords[regionName] || "";
+    return `${baseKeywords},${specificKeywords}`;
+  };
+
+  const getSEOTitle = () => {
+    if (!region) return "전국 정치인 정보";
+    return `${region} 국회의원 및 단체장 정보`;
+  };
+
+  const getSEODescription = () => {
+    if (!region) {
+      return "대한민국 전국 국회의원, 광역단체장, 기초단체장 정보를 한눈에 확인하세요. 300명의 국회의원과 17개 광역시도, 226개 기초단체의 정치인 정보를 제공합니다.";
+    }
+
+    return `${region} 지역의 국회의원, 광역단체장, 기초단체장 정보를 확인하세요. ${region} 소속 국회의원 명단, 의정활동 내역, 발의 법안, 단체장 정보를 제공합니다.`;
+  };
+
   if (loading) return <div className="p-6">로딩중...</div>;
   if (error) return <div className="p-6 text-red-500">{error}</div>;
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <>
+      <SEO
+        title={getSEOTitle()}
+        description={getSEODescription()}
+        keywords={getRegionKeywords(region)}
+        canonical={region ? `/test?region=${encodeURIComponent(region)}` : "/test"}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: "홈", url: "/" },
+          { name: region ? `${region}` : "전국", url: region ? `/test?region=${encodeURIComponent(region)}` : "/test" }
+        ]}
+      />
+      <div className="p-6 max-w-7xl mx-auto">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold">{region ? `${region}` : "전국"}</h1>
         {region && (
@@ -179,6 +240,7 @@ export default function TestPage() {
           )}
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }
