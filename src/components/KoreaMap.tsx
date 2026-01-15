@@ -219,11 +219,7 @@ export default function KoreaMap() {
         >
           <div
             className="bg-white rounded-lg p-3 shadow-lg"
-            style={{
-              width: "300px",
-              transform: `scale(${1 / modalViewport.scale})`,
-              transformOrigin: "center center",
-            }}
+            style={{ width: "300px" }}
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="text-base font-bold mb-2 text-center text-gray-800">{selectedMobileRegion}</h2>
