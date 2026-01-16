@@ -26,14 +26,18 @@ export default function PasswordModal({
 
     if (useAdminPassword && adminPassword) {
       onSubmit("", adminPassword);
+      // 초기화
+      setPassword("");
+      setAdminPassword("");
+      setUseAdminPassword(false);
     } else if (password) {
       onSubmit(password, "");
+      // 초기화
+      setPassword("");
+      setAdminPassword("");
+      setUseAdminPassword(false);
     }
-
-    // 초기화
-    setPassword("");
-    setAdminPassword("");
-    setUseAdminPassword(false);
+    // 조건을 만족하지 않으면 초기화하지 않음 (체크박스 유지)
   };
 
   const handleClose = () => {
