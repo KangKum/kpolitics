@@ -1,4 +1,4 @@
-import { Question, TestResult, CategoryResult } from "@/types/test";
+import { Question, TestResult } from "@/types/test";
 
 /**
  * 정치성향 테스트 결과 계산 함수
