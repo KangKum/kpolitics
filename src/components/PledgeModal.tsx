@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { PledgeResponse } from "@/types/pledge";
 
 // 백엔드 API URL 환경변수
@@ -22,6 +23,19 @@ export default function PledgeModal({ governorName, isOpen, onClose }: PledgeMod
   const [error, setError] = useState<string | null>(null);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [previousGovernor, setPreviousGovernor] = useState<PreviousGovernor | null>(null);
+
+  // 모달이 열릴 때 body 스크롤 막기
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     if (isOpen && governorName) {
@@ -102,9 +116,16 @@ export default function PledgeModal({ governorName, isOpen, onClose }: PledgeMod
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+  const modalContent = (
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
+      style={{ zIndex: 9999 }}
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* 헤더 */}
         <div className="sticky top-0 bg-white border-b px-4 sm:px-6 py-4 flex justify-between items-center z-10">
           <h2 className="text-xl sm:text-2xl font-bold">{governorName}의 공약</h2>
@@ -213,4 +234,6 @@ export default function PledgeModal({ governorName, isOpen, onClose }: PledgeMod
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }
