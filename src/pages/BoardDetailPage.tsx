@@ -1,8 +1,10 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import DOMPurify from "dompurify";
 import { Post, Comment, CommentFormData } from "@/types/board";
 import CommentItem from "@/components/board/CommentItem";
 import PasswordModal from "@/shared/components/ui/PasswordModal";
+import SEO from "@/shared/components/SEO/SEO";
 
 // 백엔드 API URL 환경변수
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:4001";
@@ -244,10 +246,18 @@ export default function BoardDetailPage() {
   if (!post) return <div className="p-6">게시글을 찾을 수 없습니다</div>;
 
   return (
-    <div className="p-4 sm:p-6 max-w-4xl mx-auto">
-      {/* 게시글 */}
-      <div className="bg-white border rounded-lg p-4 sm:p-6 mb-6">
-        <h1 className="text-2xl font-bold mb-4 break-words">{post.title}</h1>
+    <>
+      <SEO
+        title={post.title}
+        description={post.content.substring(0, 150)}
+        canonical={`/board/${id}`}
+        ogType="article"
+        noindex={false}
+      />
+      <div className="p-4 sm:p-6 max-w-4xl mx-auto">
+        {/* 게시글 */}
+        <div className="bg-white border rounded-lg p-4 sm:p-6 mb-6">
+          <h1 className="text-2xl font-bold mb-4 break-words">{post.title}</h1>
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4 pb-4 border-b text-sm text-gray-600">
           <div className="flex items-center gap-4">
@@ -260,7 +270,10 @@ export default function BoardDetailPage() {
           </div>
         </div>
 
-        <div className="text-gray-700 whitespace-pre-wrap mb-6 leading-relaxed">{post.content}</div>
+        <div
+          className="text-gray-700 whitespace-pre-wrap mb-6 leading-relaxed"
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
+        />
 
         {/* 게시글 버튼 */}
         <div className="flex flex-wrap gap-2 pt-4 border-t">
@@ -384,6 +397,7 @@ export default function BoardDetailPage() {
         onSubmit={handlePasswordSubmit}
         showAdminOption={true}
       />
-    </div>
+      </div>
+    </>
   );
 }

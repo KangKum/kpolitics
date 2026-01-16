@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { usePoliticalTest } from "@/hooks/usePoliticalTest";
 import ProgressBar from "@/components/test/ProgressBar";
 import QuestionCard from "@/components/test/QuestionCard";
+import SEO from "@/shared/components/SEO/SEO";
 
 /**
  * 정치성향 테스트 메인 페이지
@@ -158,10 +159,16 @@ export default function PoliticalTestPage() {
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        {/* 진행률 바 */}
-        <ProgressBar current={currentQuestionIndex + 1} total={questions.length} answeredCount={Object.keys(answers).length} />
+    <>
+      <SEO
+        title="정치성향 테스트"
+        description="24개 문항으로 나의 정치성향을 확인해보세요. 경제, 사회, 정부 역할, 안보 영역별 성향을 분석합니다."
+        canonical="/political-test"
+      />
+      <div className="min-h-screen bg-gray-50 py-8 px-4">
+        <div className="max-w-4xl mx-auto">
+          {/* 진행률 바 */}
+          <ProgressBar current={currentQuestionIndex + 1} total={questions.length} answeredCount={Object.keys(answers).length} />
 
         {/* 문항 카드 */}
         <QuestionCard
@@ -173,7 +180,8 @@ export default function PoliticalTestPage() {
           isFirstQuestion={isFirstQuestion}
           isLastQuestion={isLastQuestion}
         />
+        </div>
       </div>
-    </div>
+    </>
   );
 }

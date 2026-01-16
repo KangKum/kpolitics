@@ -1,4 +1,5 @@
 import { useState } from "react";
+import DOMPurify from "dompurify";
 import { Comment } from "@/types/board";
 
 interface CommentItemProps {
@@ -164,7 +165,10 @@ export default function CommentItem({ comment, onUpdate, onDelete }: CommentItem
     return (
       <div className="border-b py-4">
         <div className="mb-3">
-          <p className="text-gray-700 mb-1">{comment.content}</p>
+          <p
+            className="text-gray-700 mb-1"
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(comment.content) }}
+          />
           <p className="text-sm text-gray-500">
             {comment.nickname} · {formatDate(comment.createdAt)}
           </p>
@@ -255,7 +259,10 @@ export default function CommentItem({ comment, onUpdate, onDelete }: CommentItem
 
   return (
     <div className="border-b py-4">
-      <p className="text-gray-700 mb-2 whitespace-pre-wrap">{comment.content}</p>
+      <p
+        className="text-gray-700 mb-2 whitespace-pre-wrap"
+        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(comment.content) }}
+      />
       <div className="flex items-center justify-between">
         <p className="text-sm text-gray-500">
           {comment.nickname} · {formatDate(comment.createdAt)}

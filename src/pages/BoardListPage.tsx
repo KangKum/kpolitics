@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { PostsResponse } from "@/types/board";
 import Pagination from "@/shared/components/ui/Pagination";
+import SEO from "@/shared/components/SEO/SEO";
 
 // 백엔드 API URL 환경변수
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:4001";
@@ -66,10 +67,16 @@ export default function BoardListPage() {
   const { posts, pagination } = postsResponse;
 
   return (
-    <div className="p-4 sm:p-6 max-w-7xl mx-auto">
-      {/* 헤더 */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">게시판</h1>
+    <>
+      <SEO
+        title="게시판"
+        description="정치에 대한 의견을 나누고 토론하는 커뮤니티 게시판입니다."
+        canonical="/board"
+      />
+      <div className="p-4 sm:p-6 max-w-7xl mx-auto">
+        {/* 헤더 */}
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold">게시판</h1>
         <Link
           to="/board/write"
           className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
@@ -162,6 +169,7 @@ export default function BoardListPage() {
           onPageChange={handlePageChange}
         />
       )}
-    </div>
+      </div>
+    </>
   );
 }
