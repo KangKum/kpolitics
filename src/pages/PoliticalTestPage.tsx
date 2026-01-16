@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePoliticalTest } from "@/hooks/usePoliticalTest";
 import ProgressBar from "@/components/test/ProgressBar";
@@ -15,11 +16,19 @@ export default function PoliticalTestPage() {
     currentAnswer,
     currentQuestionIndex,
     questions,
+    answers,
     isCompleted,
     selectAnswer,
     nextQuestion,
     previousQuestion,
   } = usePoliticalTest();
+
+  // 테스트 완료 시 결과 페이지로 자동 이동
+  useEffect(() => {
+    if (!loading && isCompleted) {
+      navigate("/political-test/result");
+    }
+  }, [isCompleted, loading, navigate]);
 
   // 답변 선택 처리
   const handleSelectOption = (score: number) => {
@@ -95,7 +104,7 @@ export default function PoliticalTestPage() {
         <ProgressBar
           current={currentQuestionIndex + 1}
           total={questions.length}
-          answeredCount={Object.keys(usePoliticalTest().answers).length}
+          answeredCount={Object.keys(answers).length}
         />
 
         {/* 문항 카드 */}

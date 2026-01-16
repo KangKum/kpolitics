@@ -19,7 +19,7 @@ export default function OptionButton({
       onClick={onSelect}
       className={`
         w-full p-4 text-left rounded-lg border-2 transition-all
-        hover:shadow-md active:scale-[0.98]
+        hover:shadow-md active:scale-[0.98] min-h-[72px]
         ${
           isSelected
             ? "border-blue-600 bg-blue-50 shadow-sm"
@@ -28,7 +28,7 @@ export default function OptionButton({
       `}
       aria-pressed={isSelected}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-center gap-3 min-h-[40px]">
         {/* 선택지 라벨 (A, B, C, D) */}
         <span
           className={`

@@ -29,3 +29,6 @@ dist-ssr
 
 # Claude 임시 파일
 tmpclaude-*
+
+# 성향테스트 안내 파일
+testplan.md

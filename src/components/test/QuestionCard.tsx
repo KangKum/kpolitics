@@ -27,10 +27,12 @@ export default function QuestionCard({
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8 max-w-3xl mx-auto">
-      {/* 질문 텍스트 */}
-      <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-6 whitespace-pre-line leading-relaxed">
-        {question.questionText}
-      </h2>
+      {/* 질문 텍스트 - 높이 고정 */}
+      <div className="mb-6 min-h-[100px] sm:min-h-[80px] flex items-center">
+        <h2 className="text-lg sm:text-xl font-bold text-gray-900 whitespace-pre-line leading-relaxed">
+          {question.questionText}
+        </h2>
+      </div>
 
       {/* 선택지 목록 */}
       <div className="space-y-3 mb-8">
