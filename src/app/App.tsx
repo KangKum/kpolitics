@@ -15,6 +15,8 @@ const BoardWritePage = lazy(() => import("@/pages/BoardWritePage"));
 const BoardDetailPage = lazy(() => import("@/pages/BoardDetailPage"));
 const BoardEditPage = lazy(() => import("@/pages/BoardEditPage"));
 const AssemblyMemberDetailPage = lazy(() => import("@/pages/AssemblyMemberDetailPage"));
+const PoliticalTestPage = lazy(() => import("@/pages/PoliticalTestPage"));
+const PoliticalTestResultPage = lazy(() => import("@/pages/PoliticalTestResultPage"));
 
 function App() {
   return (
@@ -28,6 +30,8 @@ function App() {
                 <Route path="structure" element={<PoliticalStructurePage />} />
                 <Route path="test" element={<TestPage />} />
                 <Route path="test2" element={<TestPage2 />} />
+                <Route path="political-test" element={<PoliticalTestPage />} />
+                <Route path="political-test/result" element={<PoliticalTestResultPage />} />
                 <Route path="assembly/:name" element={<AssemblyMemberDetailPage />} />
                 <Route path="board" element={<BoardListPage />} />
                 <Route path="board/write" element={<BoardWritePage />} />
