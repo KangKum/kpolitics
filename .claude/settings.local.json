@@ -43,7 +43,8 @@
       "Bash(timeout:*)",
       "Bash(tree:*)",
       "Bash(git init:*)",
-      "Bash(npm run seed:questions:*)"
+      "Bash(npm run seed:questions:*)",
+      "Bash(claude tasks)"
     ]
   }
 }

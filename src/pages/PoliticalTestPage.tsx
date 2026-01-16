@@ -84,10 +84,7 @@ export default function PoliticalTestPage() {
           <div className="text-red-600 text-5xl mb-4">⚠️</div>
           <h2 className="text-xl font-bold text-gray-900 mb-2">오류 발생</h2>
           <p className="text-gray-600 mb-4">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
+          <button onClick={() => window.location.reload()} className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
             다시 시도
           </button>
         </div>
@@ -101,28 +98,30 @@ export default function PoliticalTestPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-xl shadow-lg p-8 sm:p-12 max-w-2xl w-full">
           {/* 제목 */}
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 text-center">
-            정치성향 테스트
-          </h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 text-center">정치성향 테스트</h1>
 
           {/* 설명 */}
           <div className="space-y-4 mb-8 text-gray-700">
-            <p className="text-base sm:text-lg leading-relaxed">
-              24개의 문항을 통해 당신의 정치성향을 확인해보세요.
-            </p>
+            <p className="text-base sm:text-lg leading-relaxed">24개의 문항을 통해 당신의 정치성향을 확인해보세요.</p>
 
             <div className="bg-blue-50 rounded-lg p-4 space-y-2">
               <p className="flex items-start gap-2">
                 <span className="text-blue-600 font-bold mt-1">•</span>
-                <span>총 <strong className="text-blue-600">24개 문항</strong> (경제, 사회, 정부 역할, 안보)</span>
+                <span>
+                  총 <strong className="text-blue-600">24개 문항</strong> (경제, 사회, 정부 역할, 안보)
+                </span>
               </p>
               <p className="flex items-start gap-2">
                 <span className="text-blue-600 font-bold mt-1">•</span>
-                <span>각 문항은 <strong className="text-blue-600">4지선다</strong> 형식입니다</span>
+                <span>
+                  각 문항은 <strong className="text-blue-600">4지선다</strong> 형식입니다
+                </span>
               </p>
               <p className="flex items-start gap-2">
                 <span className="text-blue-600 font-bold mt-1">•</span>
-                <span>소요 시간: 약 <strong className="text-blue-600">5-10분</strong></span>
+                <span>
+                  소요 시간: 약 <strong className="text-blue-600">5-10분</strong>
+                </span>
               </p>
             </div>
 
@@ -162,11 +161,7 @@ export default function PoliticalTestPage() {
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-4xl mx-auto">
         {/* 진행률 바 */}
-        <ProgressBar
-          current={currentQuestionIndex + 1}
-          total={questions.length}
-          answeredCount={Object.keys(answers).length}
-        />
+        <ProgressBar current={currentQuestionIndex + 1} total={questions.length} answeredCount={Object.keys(answers).length} />
 
         {/* 문항 카드 */}
         <QuestionCard
