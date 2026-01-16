@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePoliticalTest } from "@/hooks/usePoliticalTest";
 import ProgressBar from "@/components/test/ProgressBar";
@@ -9,6 +9,12 @@ import QuestionCard from "@/components/test/QuestionCard";
  */
 export default function PoliticalTestPage() {
   const navigate = useNavigate();
+  const [hasStarted, setHasStarted] = useState<boolean>(() => {
+    // sessionStorage에서 시작 여부 복원
+    const saved = sessionStorage.getItem("political-test-started");
+    return saved === "true";
+  });
+
   const {
     loading,
     error,
@@ -29,6 +35,12 @@ export default function PoliticalTestPage() {
       navigate("/political-test/result");
     }
   }, [isCompleted, loading, navigate]);
+
+  // 시작 버튼 클릭 핸들러
+  const handleStart = () => {
+    setHasStarted(true);
+    sessionStorage.setItem("political-test-started", "true");
+  };
 
   // 답변 선택 처리
   const handleSelectOption = (score: number) => {
@@ -77,6 +89,55 @@ export default function PoliticalTestPage() {
             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             다시 시도
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 소개 화면 (테스트 시작 전)
+  if (!hasStarted) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-lg p-8 sm:p-12 max-w-2xl w-full">
+          {/* 제목 */}
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 text-center">
+            정치성향 테스트
+          </h1>
+
+          {/* 설명 */}
+          <div className="space-y-4 mb-8 text-gray-700">
+            <p className="text-base sm:text-lg leading-relaxed">
+              24개의 문항을 통해 당신의 정치성향을 확인해보세요.
+            </p>
+
+            <div className="bg-blue-50 rounded-lg p-4 space-y-2">
+              <p className="flex items-start gap-2">
+                <span className="text-blue-600 font-bold mt-1">•</span>
+                <span>총 <strong className="text-blue-600">24개 문항</strong> (경제, 사회, 정부 역할, 안보)</span>
+              </p>
+              <p className="flex items-start gap-2">
+                <span className="text-blue-600 font-bold mt-1">•</span>
+                <span>각 문항은 <strong className="text-blue-600">4지선다</strong> 형식입니다</span>
+              </p>
+              <p className="flex items-start gap-2">
+                <span className="text-blue-600 font-bold mt-1">•</span>
+                <span>소요 시간: 약 <strong className="text-blue-600">5-10분</strong></span>
+              </p>
+            </div>
+
+            <p className="text-sm text-gray-500 italic mt-6 leading-relaxed">
+              * 이 테스트에서 사용한 '진보·보수'는 대한민국의 정당 구분이나 이념과 완전히 동일하지 않습니다.
+            </p>
+          </div>
+
+          {/* 시작 버튼 */}
+          <button
+            onClick={handleStart}
+            className="w-full py-4 bg-blue-600 text-white text-lg font-bold rounded-lg
+                     hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg"
+          >
+            테스트 시작하기
           </button>
         </div>
       </div>

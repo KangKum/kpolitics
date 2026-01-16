@@ -130,7 +130,16 @@ export default function BoardEditPage() {
     }
   };
 
-  if (loading) return <div className="p-6">로딩 중...</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="animate-spin w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4" />
+          <p className="text-gray-600">게시글을 불러오는 중...</p>
+        </div>
+      </div>
+    );
+  }
   if (error) return <div className="p-6 text-red-500">{error}</div>;
 
   return (

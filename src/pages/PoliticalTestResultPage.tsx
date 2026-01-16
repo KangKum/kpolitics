@@ -52,6 +52,7 @@ export default function PoliticalTestResultPage() {
       )
     ) {
       sessionStorage.removeItem("political-test-state");
+      sessionStorage.removeItem("political-test-started");
       navigate("/political-test");
     }
   };
